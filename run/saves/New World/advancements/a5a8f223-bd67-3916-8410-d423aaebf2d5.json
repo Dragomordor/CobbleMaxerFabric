@@ -1,0 +1,27 @@
+{
+  "minecraft:recipes/decorations/crafting_table": {
+    "criteria": {
+      "unlock_right_away": "2024-01-02 21:41:19 +0200"
+    },
+    "done": true
+  },
+  "cobblemon:root": {
+    "criteria": {
+      "picked_starter": "2024-01-02 21:41:32 +0200"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:old_growth_pine_taiga": "2024-01-02 21:41:22 +0200"
+    },
+    "done": false
+  },
+  "cobblemon:first_evolution": {
+    "criteria": {
+      "evolve": "2024-01-02 21:42:36 +0200"
+    },
+    "done": true
+  },
+  "DataVersion": 3465
+}

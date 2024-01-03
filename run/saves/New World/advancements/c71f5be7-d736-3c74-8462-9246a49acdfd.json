@@ -1,0 +1,40 @@
+{
+  "cobblemon:first_catch": {
+    "criteria": {
+      "catch": "2023-12-31 18:55:08 +0200"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/crafting_table": {
+    "criteria": {
+      "unlock_right_away": "2023-12-31 18:53:25 +0200"
+    },
+    "done": true
+  },
+  "cobblemon:root": {
+    "criteria": {
+      "picked_starter": "2023-12-31 18:53:31 +0200"
+    },
+    "done": true
+  },
+  "cobblemon:craft_all_balls": {
+    "criteria": {
+      "master_ball": "2023-12-31 18:53:25 +0200"
+    },
+    "done": false
+  },
+  "cobblemon:craft_poke_ball": {
+    "criteria": {
+      "requirement": "2023-12-31 18:53:25 +0200"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:old_growth_pine_taiga": "2023-12-31 18:53:27 +0200",
+      "minecraft:stony_shore": "2023-12-31 18:54:57 +0200"
+    },
+    "done": false
+  },
+  "DataVersion": 3465
+}
