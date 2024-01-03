@@ -698,6 +698,9 @@ const commands = {
                 }
               }
             }
+            if (pokemon.prevo) {
+              details["Pre-Evolution"] = pokemon.prevo;
+            }
             if (!evos.length) {
               details[`<font color="#686868">Does Not Evolve</font>`] = "";
             } else {
@@ -1511,7 +1514,7 @@ const commands = {
   statcalchelp: [
     `/statcalc [level] [base stat] [IVs] [nature] [EVs] [modifier] (only base stat is required) - Calculates what the actual stat of a Pok\xE9mon is with the given parameters. For example, '/statcalc lv50 100 30iv positive 252ev scarf' calculates the speed of a base 100 scarfer with HP Ice in Battle Spot, and '/statcalc uninvested 90 neutral' calculates the attack of an uninvested Crobat.`,
     `!statcalc [level] [base stat] [IVs] [nature] [EVs] [modifier] (only base stat is required) - Shows this information to everyone.`,
-    `Inputing 'hp' as an argument makes it use the formula for HP. Instead of giving nature, '+' and '-' can be appended to the EV amount (e.g. 252+ev) to signify a boosting or inhibiting nature.`,
+    `Inputting 'hp' as an argument makes it use the formula for HP. Instead of giving nature, '+' and '-' can be appended to the EV amount (e.g. 252+ev) to signify a boosting or inhibiting nature.`,
     `An actual stat can be given in place of a base stat or EVs. In this case, the minumum base stat or EVs necessary to have that real stat with the given parameters will be determined. For example, '/statcalc 502real 252+ +1' calculates the minimum base speed necessary for a positive natured fully invested scarfer to outspeed`
   ],
   /*********************************************************
@@ -1617,7 +1620,7 @@ const commands = {
     if (!this.runBroadcast())
       return;
     this.sendReplyBox(
-      `Pok&eacute;mon Showdown is open source:<br />- Language: mostly TypeScript, a little PHP<br />- <a href="https://github.com/smogon/pokemon-showdown/commits/master">What's new?</a><br />- <a href="https://github.com/smogon/pokemon-showdown">Server source code</a><br />- <a href="https://github.com/smogon/pokemon-showdown-client">Client source code</a><br />- <a href="https://github.com/Zarel/Pokemon-Showdown-Dex">Dex source code</a>- <a href="https://github.com/smogon/pokemon-showdown-loginserver">Login server source code</a>`
+      `Pok&eacute;mon Showdown is open source:<br />- Language: mostly TypeScript, a little PHP<br />- <a href="https://github.com/smogon/pokemon-showdown/commits/master">What's new?</a><br />- <a href="https://github.com/smogon/pokemon-showdown">Server source code</a><br />- <a href="https://github.com/smogon/pokemon-showdown-client">Client source code</a><br />- <a href="https://github.com/Zarel/Pokemon-Showdown-Dex">Dex source code</a><br />- <a href="https://github.com/smogon/pokemon-showdown-loginserver">Login server source code</a>`
     );
   },
   opensourcehelp: [
@@ -1724,17 +1727,6 @@ const commands = {
     const DEFAULT_CALC_COMMANDS = ["honkalculator", "honkocalc"];
     const RANDOMS_CALC_COMMANDS = ["randomscalc", "randbatscalc", "rcalc"];
     const BATTLESPOT_CALC_COMMANDS = ["bsscalc", "cantsaycalc"];
-    const SUPPORTED_RANDOM_FORMATS = [
-      "gen8randombattle",
-      "gen8unratedrandombattle",
-      "gen7randombattle",
-      "gen6randombattle",
-      "gen5randombattle",
-      "gen4randombattle",
-      "gen3randombattle",
-      "gen2randombattle",
-      "gen1randombattle"
-    ];
     const SUPPORTED_BATTLESPOT_FORMATS = [
       "gen5gbusingles",
       "gen5gbudoubles",
@@ -1745,7 +1737,7 @@ const commands = {
       "gen7battlespotdoubles",
       "gen7bssfactory"
     ];
-    const isRandomBattle = room?.battle && SUPPORTED_RANDOM_FORMATS.includes(room.battle.format);
+    const isRandomBattle = room?.battle?.format.endsWith("randombattle");
     const isBattleSpotBattle = room?.battle && (SUPPORTED_BATTLESPOT_FORMATS.includes(room.battle.format) || room.battle.format.includes("battlespotspecial"));
     if (RANDOMS_CALC_COMMANDS.includes(cmd) || isRandomBattle && !DEFAULT_CALC_COMMANDS.includes(cmd) && !BATTLESPOT_CALC_COMMANDS.includes(cmd)) {
       return this.sendReplyBox(
@@ -1772,7 +1764,7 @@ const commands = {
     if (!this.runBroadcast())
       return;
     this.sendReplyBox(
-      `An introduction to the Create-A-Pok&eacute;mon project:<br />- <a href="https://www.smogon.com/cap/">CAP project website and description</a><br />- <a href="https://www.smogon.com/forums/forums/66/">CAP project discussion forum</a><br />- <a href="https://www.smogon.com/forums/threads/48782/">What Pok&eacute;mon have been made?</a><br />- <a href="https://www.smogon.com/forums/forums/477">Talk about the metagame here</a><br />- <a href="https://www.smogon.com/forums/threads/3671157/">Sample SS CAP teams</a>`
+      `An introduction to the Create-A-Pok&eacute;mon project:<br />- <a href="https://www.smogon.com/cap/">CAP project website and description</a><br />- <a href="https://www.smogon.com/forums/forums/66/">CAP project discussion forum</a><br />- <a href="https://www.smogon.com/forums/threads/48782/">What Pok&eacute;mon have been made?</a><br />- <a href="https://www.smogon.com/forums/forums/477">Talk about the metagame here</a><br />- <a href="https://www.smogon.com/forums/threads/3718107/">Sample SV CAP teams</a>`
     );
   },
   caphelp: [
@@ -2435,13 +2427,13 @@ const commands = {
     if (!room.settings.requestShowEnabled) {
       return this.errorReply(`Media approvals are disabled in this room.`);
     }
-    if (user.can("showmedia", null, room, "/show"))
+    if (user.can("showmedia", null, room, "show"))
       return this.errorReply(`Use !show instead.`);
     if (room.pendingApprovals?.has(user.id))
       return this.errorReply("You have a request pending already.");
     if (!toID(target))
       return this.parse(`/help requestshow`);
-    let [link, comment] = target.split(",");
+    let [link, comment] = this.splitOne(target);
     if (!/^https?:\/\//.test(link))
       link = `https://${link}`;
     link = encodeURI(link);
@@ -2500,7 +2492,7 @@ const commands = {
       if (resized)
         buf += import_lib.Utils.html`<br /><a href="${request.link}" target="_blank">full-size image</a>`;
     } else {
-      buf = await import_youtube.YouTube.generateVideoDisplay(request.link);
+      buf = await import_youtube.YouTube.generateVideoDisplay(request.link, false, true);
       if (!buf)
         return this.errorReply("Could not get YouTube video");
     }
@@ -2560,9 +2552,18 @@ const commands = {
       return this.errorReply(`You are using this command too quickly. Wait a bit and try again.`);
     }
     const [link, comment] = import_lib.Utils.splitFirst(target, ",").map((f) => f.trim());
+    this.checkBroadcast();
+    if (this.broadcastMessage) {
+      if (room) {
+        this.checkCan("show", null, room);
+      } else {
+        this.checkCan("altsself");
+      }
+    }
+    this.runBroadcast();
     let buf;
     if (import_youtube.YouTube.linkRegex.test(link)) {
-      buf = await import_youtube.YouTube.generateVideoDisplay(link);
+      buf = await import_youtube.YouTube.generateVideoDisplay(link, false, this.broadcasting);
       this.message = this.message.replace(/&ab_channel=(.*)(&|)/ig, "").replace(/https:\/\/www\./ig, "");
     } else if (import_youtube.Twitch.linkRegex.test(link)) {
       const channelId = import_youtube.Twitch.linkRegex.exec(link)?.[2]?.trim();
@@ -2592,15 +2593,6 @@ const commands = {
       }
       buf += import_lib.Utils.html`<br />(${comment})</div>`;
     }
-    this.checkBroadcast();
-    if (this.broadcastMessage) {
-      if (room) {
-        this.checkCan("show", null, room);
-      } else {
-        this.checkCan("altsself");
-      }
-    }
-    this.runBroadcast();
     this.sendReplyBox(buf);
   },
   showhelp: [
@@ -2803,7 +2795,7 @@ const commands = {
         const help = Chat.commands[namespace + "help"];
         if (help) {
           const text = Array.isArray(help) ? help.join(" | ") : typeof help === "function" ? `<button class="button" name="send" value="/${cmdList[0] + "help"}">Get help</button>` : "";
-          buf += text ? ` (<code><small>${text}</small></code>)` : `(no help found)`;
+          buf += text ? ` (<code><small>${text}</small></code>)` : ` (no help found)`;
         }
       }
       buf += `<br />`;
@@ -2968,7 +2960,7 @@ const pages = {
         buf += `<div class="message-error">The format '${formatId}' does not exist.</div><br />`;
       }
       buf += `<form data-submitsend="/buildformat {format}">`;
-      buf += `Choose your format: <input name="format" /><br />`;
+      buf += `Choose your format: <formatselect name="format">[Gen ${Dex.gen}] Random Battle</formatselect><br />`;
       buf += `<button type="submit" class="button notifying">Continue</button>`;
       buf += `</form>`;
       return buf;

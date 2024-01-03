@@ -200,7 +200,7 @@ class YoutubeInterface {
       id = id.split("?")[0];
     return id;
   }
-  async generateVideoDisplay(link, fullInfo = false) {
+  async generateVideoDisplay(link, fullInfo = false, broadcasting = false) {
     if (!Config.youtubeKey) {
       throw new Chat.ErrorMessage(`This server does not support YouTube commands. If you're the owner, you can enable them by setting up Config.youtubekey.`);
     }
@@ -211,7 +211,12 @@ class YoutubeInterface {
     if (!fullInfo) {
       let buf2 = `<b>${info.title}</b> `;
       buf2 += `(<a class="subtle" href="https://youtube.com/channel/${info.channelUrl}">${info.channelTitle}</a>)<br />`;
-      buf2 += `<youtube src="https://www.youtube.com/embed/${id}" />`;
+      if (broadcasting) {
+        buf2 += `<button class="button" name="send" value="/show https://www.youtube.com/watch?v=${id}">`;
+        buf2 += `Click to view "${info.title}"</button>`;
+      } else {
+        buf2 += `<youtube src="https://www.youtube.com/embed/${id}" />`;
+      }
       return buf2;
     }
     let buf = `<table style="margin:0px;"><tr>`;

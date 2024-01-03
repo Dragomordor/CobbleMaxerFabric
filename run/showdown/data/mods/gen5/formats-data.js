@@ -1484,7 +1484,7 @@ const FormatsData = {
     doublesTier: "DUU"
   },
   latias: {
-    tier: "(OU)",
+    tier: "OU",
     doublesTier: "DUU"
   },
   latios: {

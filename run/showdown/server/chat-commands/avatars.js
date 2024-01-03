@@ -1466,7 +1466,35 @@ const OFFICIAL_AVATARS_KYLEDOVE = /* @__PURE__ */ new Set([
   "trevor",
   "whitney-masters",
   "youngster-gen9",
-  "zirco-unite"
+  "zirco-unite",
+  "alec-anime",
+  "bodybuilder-gen9",
+  "bodybuilderf-gen9",
+  "carmine-festival",
+  "carmine",
+  "diamondclanmember",
+  "dragontamer-gen9",
+  "elesa-masters2",
+  "kieran-festival",
+  "kieran",
+  "laventon2",
+  "liza-masters",
+  "mallow-masters",
+  "musician-gen9",
+  "nemona-s",
+  "officeworker-gen9",
+  "officeworkerf-gen9",
+  "pearlclanmember",
+  "raifort",
+  "saguaro",
+  "salvatore",
+  "scientist-gen9",
+  "shauna-masters",
+  "silver-masters",
+  "steven-masters4",
+  "tate-masters",
+  "waiter-gen9",
+  "waitress-gen9"
 ]);
 const OFFICIAL_AVATARS_HYOOPPA = /* @__PURE__ */ new Set([
   "brendan",
@@ -1481,6 +1509,10 @@ const OFFICIAL_AVATARS_GRAPO = /* @__PURE__ */ new Set([
 ]);
 const OFFICIAL_AVATARS_FIFTY = /* @__PURE__ */ new Set([
   "rose-zerosuit"
+]);
+const OFFICIAL_AVATARS_HORO = /* @__PURE__ */ new Set([
+  "florian-bb",
+  "juliana-bb"
 ]);
 for (const avatar of OFFICIAL_AVATARS_BELIOT419)
   OFFICIAL_AVATARS.add(avatar);
@@ -1497,6 +1529,8 @@ for (const avatar of OFFICIAL_AVATARS_HYOOPPA)
 for (const avatar of OFFICIAL_AVATARS_GRAPO)
   OFFICIAL_AVATARS.add(avatar);
 for (const avatar of OFFICIAL_AVATARS_FIFTY)
+  OFFICIAL_AVATARS.add(avatar);
+for (const avatar of OFFICIAL_AVATARS_HORO)
   OFFICIAL_AVATARS.add(avatar);
 const commands = {
   avatar(target, room, user) {
@@ -1532,7 +1566,7 @@ const commands = {
         this.sendReply(`|raw|(${this.tr`Artist: `}ZacWeavile)`);
       }
       if (OFFICIAL_AVATARS_KYLEDOVE.has(avatar)) {
-        this.sendReply(`|raw|(${this.tr`Artist: `}<a href="https://twitter.com/DoveKyle">Kyledove</a>)`);
+        this.sendReply(`|raw|(${this.tr`Artist: `}<a href="https://twitter.com/DoveKyle">kyledove</a>)`);
       }
       if (OFFICIAL_AVATARS_HYOOPPA.has(avatar)) {
         this.sendReply(`|raw|(${this.tr`Artist: `}<a href="https://twitter.com/hyo_oppa">hyo-oppa</a>)`);
@@ -1542,6 +1576,9 @@ const commands = {
       }
       if (OFFICIAL_AVATARS_FIFTY.has(avatar)) {
         this.sendReply(`|raw|(${this.tr`Artist: `}Fifty Shades of Rez)`);
+      }
+      if (OFFICIAL_AVATARS_HORO.has(avatar)) {
+        this.sendReply(`|raw|(${this.tr`Artist: `}Horo)`);
       }
     }
   },
@@ -1590,6 +1627,7 @@ const commands = {
     `/groupavatar [username], [avatar] - Gives a user an allowed (group) avatar.`,
     `/removeavatar [username], [avatar] - Removes access to an avatar from a user.`,
     `/removeavatar [username] - Removes access to all custom avatars from a user.`,
+    `/moveavatars [oldname], [newname] - Moves access to all custom avatars from oldname to newname.`,
     AVATAR_FORMATS_MESSAGE
   ],
   personalavatar: "defaultavatar",

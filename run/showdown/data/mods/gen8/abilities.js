@@ -96,7 +96,7 @@ const Abilities = {
       if (effect?.effectType !== "Move") {
         return;
       }
-      if (source.species.id === "greninja" && source.hp && !source.transformed && source.side.foePokemonLeft()) {
+      if (source.species.id === "greninjabond" && source.hp && !source.transformed && source.side.foePokemonLeft()) {
         this.add("-activate", source, "ability: Battle Bond");
         source.formeChange("Greninja-Ash", this.effect, true);
       }
@@ -375,6 +375,17 @@ const Abilities = {
   },
   heatproof: {
     inherit: true,
+    onSourceModifyAtk() {
+    },
+    onSourceModifySpA() {
+    },
+    onSourceBasePowerPriority: 18,
+    onSourceBasePower(basePower, attacker, defender, move) {
+      if (move.type === "Fire") {
+        this.debug("Heatproof BP weaken");
+        return this.chainModify(0.5);
+      }
+    },
     rating: 2
   },
   heavymetal: {
@@ -419,6 +430,11 @@ const Abilities = {
   },
   illuminate: {
     inherit: true,
+    onTryBoost() {
+    },
+    onModifyMove() {
+    },
+    isBreakable: void 0,
     rating: 0
   },
   illusion: {
@@ -570,7 +586,7 @@ const Abilities = {
   },
   mirrorarmor: {
     inherit: true,
-    rating: 2
+    rating: 2.5
   },
   mistysurge: {
     inherit: true,
@@ -1057,6 +1073,18 @@ const Abilities = {
   },
   transistor: {
     inherit: true,
+    onModifyAtk(atk, attacker, defender, move) {
+      if (move.type === "Electric") {
+        this.debug("Transistor boost");
+        return this.chainModify(1.5);
+      }
+    },
+    onModifySpA(atk, attacker, defender, move) {
+      if (move.type === "Electric") {
+        this.debug("Transistor boost");
+        return this.chainModify(1.5);
+      }
+    },
     rating: 3.5
   },
   triage: {

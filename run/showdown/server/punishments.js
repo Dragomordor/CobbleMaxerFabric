@@ -444,6 +444,9 @@ const Punishments = new class {
       if (!row)
         continue;
       const [ip, type, note] = row.trim().split("	");
+      if (ip === "IP") {
+        continue;
+      }
       if (IPTools.ipRegex.test(note)) {
         Punishments.sharedIps.set(note, ip);
         needsSave = true;
@@ -1753,6 +1756,13 @@ Or you can ${appealLink}.` : ``}`
             }
           }
         }
+      }
+    }
+    for (const id of user.previousIDs) {
+      punishments = Punishments.roomUserids.nestedGet(roomid, id);
+      for (const p of punishments || []) {
+        if (["ROOMBAN", "BLACKLIST"].includes(p.type))
+          return p;
       }
     }
     const room = Rooms.get(roomid);

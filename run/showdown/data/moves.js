@@ -233,7 +233,7 @@ const Moves = {
     priority: 0,
     flags: { bypasssub: 1, allyanim: 1 },
     onHit(target) {
-      if (target.side.active.length < 2)
+      if (this.activePerHalf === 1)
         return false;
       const action = this.queue.willMove(target);
       if (action) {
@@ -779,7 +779,6 @@ const Moves = {
     accuracy: 100,
     basePower: 110,
     category: "Physical",
-    isNonstandard: "Past",
     name: "Aura Wheel",
     pp: 10,
     priority: 0,
@@ -1054,7 +1053,6 @@ const Moves = {
     accuracy: 100,
     basePower: 60,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Barb Barrage",
     pp: 10,
     priority: 0,
@@ -1115,7 +1113,7 @@ const Moves = {
     pp: 40,
     priority: 0,
     flags: {},
-    onTryHit(target) {
+    onHit(target) {
       if (!this.canSwitch(target.side) || target.volatiles["commanded"]) {
         this.attrLastMove("[still]");
         this.add("-fail", target);
@@ -1508,11 +1506,15 @@ const Moves = {
     accuracy: 80,
     basePower: 100,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Bleakwind Storm",
     pp: 10,
     priority: 0,
     flags: { protect: 1, mirror: 1, wind: 1 },
+    onModifyMove(move, pokemon, target) {
+      if (target && ["raindance", "primordialsea"].includes(target.effectiveWeather())) {
+        move.accuracy = true;
+      }
+    },
     secondary: {
       chance: 30,
       boosts: {
@@ -1560,6 +1562,19 @@ const Moves = {
     type: "Normal",
     zMove: { boost: { def: 1 } },
     contestType: "Cute"
+  },
+  bloodmoon: {
+    num: 901,
+    accuracy: 100,
+    basePower: 140,
+    category: "Special",
+    name: "Blood Moon",
+    pp: 5,
+    priority: 0,
+    flags: { protect: 1, mirror: 1, cantusetwice: 1 },
+    secondary: null,
+    target: "normal",
+    type: "Normal"
   },
   bloomdoom: {
     num: 644,
@@ -2227,20 +2242,26 @@ const Moves = {
     accuracy: 90,
     basePower: 65,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Ceaseless Edge",
     pp: 15,
     priority: 0,
     flags: { contact: 1, protect: 1, mirror: 1, slicing: 1 },
-    self: {
-      onHit(source) {
+    onAfterHit(target, source, move) {
+      if (!move.hasSheerForce && source.hp) {
+        for (const side of source.side.foeSidesWithConditions()) {
+          side.addSideCondition("spikes");
+        }
+      }
+    },
+    onAfterSubDamage(damage, target, source, move) {
+      if (!move.hasSheerForce && source.hp) {
         for (const side of source.side.foeSidesWithConditions()) {
           side.addSideCondition("spikes");
         }
       }
     },
     secondary: {},
-    // allows sheer force to trigger
+    // Sheer Force-boosted
     target: "normal",
     type: "Dark"
   },
@@ -2444,21 +2465,11 @@ const Moves = {
     accuracy: 95,
     basePower: 150,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Chloroblast",
     pp: 5,
     priority: 0,
     flags: { protect: 1, mirror: 1 },
-    mindBlownRecoil: true,
-    onAfterMove(pokemon, target, move) {
-      if (move.mindBlownRecoil && !move.multihit) {
-        const hpBeforeRecoil = pokemon.hp;
-        this.damage(Math.round(pokemon.maxhp / 2), pokemon, pokemon, this.dex.conditions.get("Chloroblast"), true);
-        if (pokemon.hp <= pokemon.maxhp / 2 && hpBeforeRecoil > pokemon.maxhp / 2) {
-          this.runEvent("EmergencyExit", pokemon, pokemon);
-        }
-      }
-    },
+    // Recoil implemented in battle-actions.ts
     secondary: null,
     target: "normal",
     type: "Grass"
@@ -2498,7 +2509,6 @@ const Moves = {
     accuracy: 100,
     basePower: 110,
     category: "Special",
-    isNonstandard: "Past",
     name: "Clanging Scales",
     pp: 5,
     priority: 0,
@@ -2518,7 +2528,6 @@ const Moves = {
     accuracy: 100,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Past",
     name: "Clangorous Soul",
     pp: 5,
     priority: 0,
@@ -2988,7 +2997,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Unobtainable",
     name: "Cosmic Power",
     pp: 20,
     priority: 0,
@@ -3449,7 +3457,6 @@ const Moves = {
     accuracy: 50,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Past",
     name: "Dark Void",
     pp: 10,
     priority: 0,
@@ -3851,7 +3858,6 @@ const Moves = {
     accuracy: 100,
     basePower: 80,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Dire Claw",
     pp: 15,
     priority: 0,
@@ -3986,7 +3992,6 @@ const Moves = {
     accuracy: 100,
     basePower: 140,
     category: "Special",
-    isNonstandard: "Past",
     name: "Doom Desire",
     pp: 5,
     priority: 0,
@@ -4989,6 +4994,7 @@ const Moves = {
         return false;
       const additionalBannedSourceAbilities = [
         // Zen Mode included here for compatability with Gen 5-6
+        "commander",
         "flowergift",
         "forecast",
         "hungerswitch",
@@ -5044,7 +5050,6 @@ const Moves = {
     accuracy: 100,
     basePower: 80,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Esper Wing",
     pp: 10,
     priority: 0,
@@ -5445,6 +5450,7 @@ const Moves = {
       pokemon.faint();
       return damage;
     },
+    selfdestruct: "ifHit",
     category: "Special",
     name: "Final Gambit",
     pp: 5,
@@ -6292,7 +6298,6 @@ const Moves = {
     accuracy: 100,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Past",
     name: "Forest's Curse",
     pp: 20,
     priority: 0,
@@ -6786,21 +6791,7 @@ const Moves = {
     name: "Gigaton Hammer",
     pp: 5,
     priority: 0,
-    flags: { protect: 1, mirror: 1 },
-    onDisableMove(pokemon) {
-      if (pokemon.lastMove?.id === "gigatonhammer")
-        pokemon.disableMove("gigatonhammer");
-    },
-    beforeMoveCallback(pokemon) {
-      if (pokemon.lastMove?.id === "gigatonhammer")
-        pokemon.addVolatile("gigatonhammer");
-    },
-    onAfterMove(pokemon) {
-      if (pokemon.removeVolatile("gigatonhammer")) {
-        this.add("-hint", "Some effects can force a Pokemon to use Gigaton Hammer again in a row.");
-      }
-    },
-    condition: {},
+    flags: { protect: 1, mirror: 1, cantusetwice: 1 },
     secondary: null,
     target: "normal",
     type: "Steel"
@@ -7922,7 +7913,7 @@ const Moves = {
   grassyglide: {
     num: 803,
     accuracy: 100,
-    basePower: 60,
+    basePower: 55,
     category: "Physical",
     name: "Grassy Glide",
     pp: 20,
@@ -8506,7 +8497,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Unobtainable",
     name: "Heal Bell",
     pp: 5,
     priority: 0,
@@ -9707,11 +9697,15 @@ const Moves = {
     pp: 15,
     priority: 0,
     flags: { contact: 1, protect: 1, mirror: 1 },
-    onHit() {
-      this.field.clearTerrain();
+    onAfterHit(target, source) {
+      if (source.hp) {
+        this.field.clearTerrain();
+      }
     },
-    onAfterSubDamage() {
-      this.field.clearTerrain();
+    onAfterSubDamage(damage, target, source) {
+      if (source.hp) {
+        this.field.clearTerrain();
+      }
     },
     secondary: null,
     target: "normal",
@@ -9837,7 +9831,6 @@ const Moves = {
       return move.basePower;
     },
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Infernal Parade",
     pp: 15,
     priority: 0,
@@ -10046,6 +10039,36 @@ const Moves = {
     type: "Steel",
     contestType: "Cool"
   },
+  ivycudgel: {
+    num: 904,
+    accuracy: 100,
+    basePower: 100,
+    category: "Physical",
+    name: "Ivy Cudgel",
+    pp: 10,
+    priority: 0,
+    flags: { protect: 1, mirror: 1 },
+    critRatio: 2,
+    onModifyType(move, pokemon) {
+      switch (pokemon.species.name) {
+        case "Ogerpon-Wellspring":
+        case "Ogerpon-Wellspring-Tera":
+          move.type = "Water";
+          break;
+        case "Ogerpon-Hearthflame":
+        case "Ogerpon-Hearthflame-Tera":
+          move.type = "Fire";
+          break;
+        case "Ogerpon-Cornerstone":
+        case "Ogerpon-Cornerstone-Tera":
+          move.type = "Rock";
+          break;
+      }
+    },
+    secondary: null,
+    target: "normal",
+    type: "Grass"
+  },
   jawlock: {
     num: 746,
     accuracy: 100,
@@ -10073,7 +10096,6 @@ const Moves = {
     priority: 1,
     flags: { contact: 1, protect: 1, mirror: 1, punch: 1 },
     secondary: null,
-    hasSheerForce: true,
     target: "normal",
     type: "Water",
     contestType: "Cool"
@@ -10856,7 +10878,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Unobtainable",
     name: "Lunar Blessing",
     pp: 5,
     priority: 0,
@@ -11331,6 +11352,24 @@ const Moves = {
     type: "Fighting",
     zMove: { boost: { def: 1 } },
     contestType: "Cool"
+  },
+  matchagotcha: {
+    num: 902,
+    accuracy: 90,
+    basePower: 80,
+    category: "Special",
+    name: "Matcha Gotcha",
+    pp: 15,
+    priority: 0,
+    flags: { protect: 1, mirror: 1, defrost: 1 },
+    drain: [1, 2],
+    thawsTarget: true,
+    secondary: {
+      chance: 20,
+      status: "brn"
+    },
+    target: "allAdjacentFoes",
+    type: "Grass"
   },
   maxairstream: {
     num: 766,
@@ -12865,32 +12904,36 @@ const Moves = {
     pp: 15,
     priority: 0,
     flags: { contact: 1, protect: 1, mirror: 1 },
-    onAfterHit(target, pokemon) {
-      if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
-        this.add("-end", pokemon, "Leech Seed", "[from] move: Mortal Spin", "[of] " + pokemon);
-      }
-      const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
-      for (const condition of sideConditions) {
-        if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
-          this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Mortal Spin", "[of] " + pokemon);
+    onAfterHit(target, pokemon, move) {
+      if (!move.hasSheerForce) {
+        if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
+          this.add("-end", pokemon, "Leech Seed", "[from] move: Mortal Spin", "[of] " + pokemon);
         }
-      }
-      if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
-        pokemon.removeVolatile("partiallytrapped");
+        const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
+        for (const condition of sideConditions) {
+          if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
+            this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Mortal Spin", "[of] " + pokemon);
+          }
+        }
+        if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
+          pokemon.removeVolatile("partiallytrapped");
+        }
       }
     },
-    onAfterSubDamage(damage, target, pokemon) {
-      if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
-        this.add("-end", pokemon, "Leech Seed", "[from] move: Mortal Spin", "[of] " + pokemon);
-      }
-      const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
-      for (const condition of sideConditions) {
-        if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
-          this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Mortal Spin", "[of] " + pokemon);
+    onAfterSubDamage(damage, target, pokemon, move) {
+      if (!move.hasSheerForce) {
+        if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
+          this.add("-end", pokemon, "Leech Seed", "[from] move: Mortal Spin", "[of] " + pokemon);
         }
-      }
-      if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
-        pokemon.removeVolatile("partiallytrapped");
+        const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
+        for (const condition of sideConditions) {
+          if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
+            this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Mortal Spin", "[of] " + pokemon);
+          }
+        }
+        if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
+          pokemon.removeVolatile("partiallytrapped");
+        }
       }
     },
     secondary: {
@@ -12905,7 +12948,6 @@ const Moves = {
     accuracy: 85,
     basePower: 100,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Mountain Gale",
     pp: 10,
     priority: 0,
@@ -13075,7 +13117,6 @@ const Moves = {
     accuracy: 90,
     basePower: 70,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Mystical Power",
     pp: 10,
     priority: 0,
@@ -14196,10 +14237,22 @@ const Moves = {
         move.infiltrates = true;
       }
     },
-    onHit(target, source) {
+    onTryMove(source, target, move) {
+      if (source.isAlly(target) && source.volatiles["healblock"]) {
+        this.attrLastMove("[still]");
+        this.add("cant", source, "move: Heal Block", move);
+        return false;
+      }
+    },
+    onHit(target, source, move) {
       if (source.isAlly(target)) {
         if (!this.heal(Math.floor(target.baseMaxhp * 0.5))) {
-          this.add("-immune", target);
+          if (target.volatiles["healblock"] && target.hp !== target.maxhp) {
+            this.attrLastMove("[still]");
+            this.add("cant", source, "move: Heal Block", move);
+          } else {
+            this.add("-immune", target);
+          }
           return this.NOT_FAIL;
         }
       }
@@ -14353,44 +14406,23 @@ const Moves = {
     condition: {
       onStart(pokemon) {
         this.add("-start", pokemon, "Power Shift");
-        [
-          pokemon.storedStats.atk,
-          pokemon.storedStats.spa,
-          pokemon.storedStats.def,
-          pokemon.storedStats.spd
-        ] = [
-          pokemon.storedStats.def,
-          pokemon.storedStats.spd,
-          pokemon.storedStats.atk,
-          pokemon.storedStats.spa
-        ];
+        const newatk = pokemon.storedStats.def;
+        const newdef = pokemon.storedStats.atk;
+        pokemon.storedStats.atk = newatk;
+        pokemon.storedStats.def = newdef;
       },
       onCopy(pokemon) {
-        [
-          pokemon.storedStats.atk,
-          pokemon.storedStats.spa,
-          pokemon.storedStats.def,
-          pokemon.storedStats.spd
-        ] = [
-          pokemon.storedStats.def,
-          pokemon.storedStats.spd,
-          pokemon.storedStats.atk,
-          pokemon.storedStats.spa
-        ];
+        const newatk = pokemon.storedStats.def;
+        const newdef = pokemon.storedStats.atk;
+        pokemon.storedStats.atk = newatk;
+        pokemon.storedStats.def = newdef;
       },
       onEnd(pokemon) {
         this.add("-end", pokemon, "Power Shift");
-        [
-          pokemon.storedStats.atk,
-          pokemon.storedStats.spa,
-          pokemon.storedStats.def,
-          pokemon.storedStats.spd
-        ] = [
-          pokemon.storedStats.def,
-          pokemon.storedStats.spd,
-          pokemon.storedStats.atk,
-          pokemon.storedStats.spa
-        ];
+        const newatk = pokemon.storedStats.def;
+        const newdef = pokemon.storedStats.atk;
+        pokemon.storedStats.atk = newatk;
+        pokemon.storedStats.def = newdef;
       },
       onRestart(pokemon) {
         pokemon.removeVolatile("Power Shift");
@@ -14891,7 +14923,6 @@ const Moves = {
     accuracy: 90,
     basePower: 70,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Psyshield Bash",
     pp: 10,
     priority: 0,
@@ -15330,7 +15361,6 @@ const Moves = {
     accuracy: 100,
     basePower: 120,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Raging Fury",
     pp: 10,
     priority: 0,
@@ -15372,32 +15402,36 @@ const Moves = {
     pp: 40,
     priority: 0,
     flags: { contact: 1, protect: 1, mirror: 1 },
-    onAfterHit(target, pokemon) {
-      if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
-        this.add("-end", pokemon, "Leech Seed", "[from] move: Rapid Spin", "[of] " + pokemon);
-      }
-      const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
-      for (const condition of sideConditions) {
-        if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
-          this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Rapid Spin", "[of] " + pokemon);
+    onAfterHit(target, pokemon, move) {
+      if (!move.hasSheerForce) {
+        if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
+          this.add("-end", pokemon, "Leech Seed", "[from] move: Rapid Spin", "[of] " + pokemon);
         }
-      }
-      if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
-        pokemon.removeVolatile("partiallytrapped");
+        const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
+        for (const condition of sideConditions) {
+          if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
+            this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Rapid Spin", "[of] " + pokemon);
+          }
+        }
+        if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
+          pokemon.removeVolatile("partiallytrapped");
+        }
       }
     },
-    onAfterSubDamage(damage, target, pokemon) {
-      if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
-        this.add("-end", pokemon, "Leech Seed", "[from] move: Rapid Spin", "[of] " + pokemon);
-      }
-      const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
-      for (const condition of sideConditions) {
-        if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
-          this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Rapid Spin", "[of] " + pokemon);
+    onAfterSubDamage(damage, target, pokemon, move) {
+      if (!move.hasSheerForce) {
+        if (pokemon.hp && pokemon.removeVolatile("leechseed")) {
+          this.add("-end", pokemon, "Leech Seed", "[from] move: Rapid Spin", "[of] " + pokemon);
         }
-      }
-      if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
-        pokemon.removeVolatile("partiallytrapped");
+        const sideConditions = ["spikes", "toxicspikes", "stealthrock", "stickyweb", "gmaxsteelsurge"];
+        for (const condition of sideConditions) {
+          if (pokemon.hp && pokemon.side.removeSideCondition(condition)) {
+            this.add("-sideend", pokemon.side, this.dex.conditions.get(condition).name, "[from] move: Rapid Spin", "[of] " + pokemon);
+          }
+        }
+        if (pokemon.hp && pokemon.volatiles["partiallytrapped"]) {
+          pokemon.removeVolatile("partiallytrapped");
+        }
       }
     },
     secondary: {
@@ -16031,6 +16065,7 @@ const Moves = {
         return false;
       const additionalBannedTargetAbilities = [
         // Zen Mode included here for compatability with Gen 5-6
+        "commander",
         "flowergift",
         "forecast",
         "hungerswitch",
@@ -16406,11 +16441,15 @@ const Moves = {
     accuracy: 80,
     basePower: 100,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Sandsear Storm",
     pp: 10,
     priority: 0,
     flags: { protect: 1, mirror: 1, wind: 1 },
+    onModifyMove(move, pokemon, target) {
+      if (target && ["raindance", "primordialsea"].includes(target.effectiveWeather())) {
+        move.accuracy = true;
+      }
+    },
     secondary: {
       chance: 20,
       status: "brn"
@@ -16685,7 +16724,7 @@ const Moves = {
     name: "Secret Sword",
     pp: 10,
     priority: 0,
-    flags: { protect: 1, mirror: 1 },
+    flags: { protect: 1, mirror: 1, slicing: 1 },
     secondary: null,
     target: "normal",
     type: "Fighting",
@@ -16710,7 +16749,6 @@ const Moves = {
     accuracy: 85,
     basePower: 120,
     category: "Special",
-    isNonstandard: "Past",
     name: "Seed Flare",
     pp: 5,
     priority: 0,
@@ -16934,7 +16972,7 @@ const Moves = {
     flags: {},
     volatileStatus: "substitute",
     onTryHit(source) {
-      if (!this.canSwitch(source.side)) {
+      if (!this.canSwitch(source.side) || source.volatiles["commanded"]) {
         this.add("-fail", source);
         return this.NOT_FAIL;
       }
@@ -17088,7 +17126,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Unobtainable",
     name: "Shelter",
     pp: 10,
     priority: 0,
@@ -17263,7 +17300,6 @@ const Moves = {
     accuracy: 100,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Unobtainable",
     name: "Simple Beam",
     pp: 15,
     priority: 0,
@@ -18684,7 +18720,6 @@ const Moves = {
     accuracy: 80,
     basePower: 100,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Springtide Storm",
     pp: 5,
     priority: 0,
@@ -18979,20 +19014,26 @@ const Moves = {
     accuracy: 90,
     basePower: 65,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Stone Axe",
     pp: 15,
     priority: 0,
     flags: { contact: 1, protect: 1, mirror: 1, slicing: 1 },
-    self: {
-      onHit(source) {
+    onAfterHit(target, source, move) {
+      if (!move.hasSheerForce && source.hp) {
+        for (const side of source.side.foeSidesWithConditions()) {
+          side.addSideCondition("stealthrock");
+        }
+      }
+    },
+    onAfterSubDamage(damage, target, source, move) {
+      if (!move.hasSheerForce && source.hp) {
         for (const side of source.side.foeSidesWithConditions()) {
           side.addSideCondition("stealthrock");
         }
       }
     },
     secondary: {},
-    // allows sheer force to trigger
+    // Sheer Force-boosted
     target: "normal",
     type: "Rock"
   },
@@ -19053,7 +19094,6 @@ const Moves = {
     accuracy: 95,
     basePower: 90,
     category: "Special",
-    isNonstandard: "Past",
     name: "Strange Steam",
     pp: 10,
     priority: 0,
@@ -19289,8 +19329,8 @@ const Moves = {
         } else {
           this.add("-activate", target, "move: Substitute", "[damage]");
         }
-        if (move.recoil) {
-          this.damage(this.actions.calcRecoilDamage(damage, move), source, target, "recoil");
+        if (move.recoil || move.id === "chloroblast") {
+          this.damage(this.actions.calcRecoilDamage(damage, move, source), source, target, "recoil");
         }
         if (move.drain) {
           this.heal(Math.ceil(damage * move.drain[0] / move.drain[1]), source, target, "drain");
@@ -19693,6 +19733,36 @@ const Moves = {
     zMove: { effect: "clearnegativeboost" },
     contestType: "Clever"
   },
+  syrupbomb: {
+    num: 903,
+    accuracy: 85,
+    basePower: 60,
+    category: "Special",
+    name: "Syrup Bomb",
+    pp: 10,
+    priority: 0,
+    flags: { protect: 1, mirror: 1, bullet: 1 },
+    condition: {
+      noCopy: true,
+      duration: 4,
+      onStart(pokemon) {
+        this.add("-start", pokemon, "Syrup Bomb");
+      },
+      onResidualOrder: 14,
+      onResidual() {
+        this.boost({ spe: -1 });
+      },
+      onEnd(pokemon) {
+        this.add("-end", pokemon, "Syrup Bomb", "[silent]");
+      }
+    },
+    secondary: {
+      chance: 100,
+      volatileStatus: "syrupbomb"
+    },
+    target: "normal",
+    type: "Grass"
+  },
   tackle: {
     num: 33,
     accuracy: 100,
@@ -19712,7 +19782,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Past",
     name: "Tail Glow",
     pp: 20,
     priority: 0,
@@ -19822,7 +19891,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Past",
     name: "Take Heart",
     pp: 15,
     priority: 0,
@@ -20097,6 +20165,11 @@ const Moves = {
     pp: 10,
     priority: 0,
     flags: { protect: 1, mirror: 1, mustpressure: 1 },
+    onPrepareHit(target, source, move) {
+      if (source.terastallized) {
+        this.attrLastMove("[anim] Tera Blast " + source.teraType);
+      }
+    },
     onModifyType(move, pokemon, target) {
       if (pokemon.terastallized) {
         move.type = pokemon.teraType;
@@ -20651,7 +20724,6 @@ const Moves = {
     accuracy: 100,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Past",
     name: "Toxic Thread",
     pp: 20,
     priority: 0,
@@ -20858,7 +20930,6 @@ const Moves = {
     accuracy: 100,
     basePower: 90,
     category: "Physical",
-    isNonstandard: "Unobtainable",
     name: "Triple Arrows",
     pp: 10,
     priority: 0,
@@ -21245,7 +21316,6 @@ const Moves = {
     accuracy: true,
     basePower: 0,
     category: "Status",
-    isNonstandard: "Unobtainable",
     name: "Victory Dance",
     pp: 10,
     priority: 0,
@@ -21750,11 +21820,15 @@ const Moves = {
     accuracy: 80,
     basePower: 100,
     category: "Special",
-    isNonstandard: "Unobtainable",
     name: "Wildbolt Storm",
     pp: 10,
     priority: 0,
     flags: { protect: 1, mirror: 1, wind: 1 },
+    onModifyMove(move, pokemon, target) {
+      if (target && ["raindance", "primordialsea"].includes(target.effectiveWeather())) {
+        move.accuracy = true;
+      }
+    },
     secondary: {
       chance: 20,
       status: "par"

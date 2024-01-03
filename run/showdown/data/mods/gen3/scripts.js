@@ -425,7 +425,7 @@ const Scripts = {
         move.totalDamage = damage;
       }
       if (move.recoil && move.totalDamage) {
-        this.battle.damage(this.calcRecoilDamage(move.totalDamage, move), pokemon, target, "recoil");
+        this.battle.damage(this.calcRecoilDamage(move.totalDamage, move, pokemon), pokemon, target, "recoil");
       }
       if (target && pokemon !== target)
         target.gotAttacked(move, damage, pokemon);

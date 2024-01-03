@@ -52,10 +52,6 @@ const Moves = {
     inherit: true,
     flags: { failencore: 1, nosleeptalk: 1, noassist: 1, failcopycat: 1, failinstruct: 1 }
   },
-  aurawheel: {
-    inherit: true,
-    isNonstandard: null
-  },
   auroraveil: {
     inherit: true,
     onTry() {
@@ -144,14 +140,6 @@ const Moves = {
       failmimic: 1
     }
   },
-  clangingscales: {
-    inherit: true,
-    isNonstandard: null
-  },
-  clangoroussoul: {
-    inherit: true,
-    isNonstandard: null
-  },
   conversion: {
     inherit: true,
     isNonstandard: null
@@ -189,11 +177,11 @@ const Moves = {
     },
     target: "randomNormal"
   },
-  decorate: {
+  darkvoid: {
     inherit: true,
-    isNonstandard: null
+    isNonstandard: "Past"
   },
-  doomdesire: {
+  decorate: {
     inherit: true,
     isNonstandard: null
   },
@@ -249,10 +237,6 @@ const Moves = {
       attacker.addVolatile("twoturnmove", defender);
       return null;
     }
-  },
-  forestscurse: {
-    inherit: true,
-    isNonstandard: null
   },
   freezeshock: {
     inherit: true,
@@ -592,6 +576,10 @@ const Moves = {
     inherit: true,
     isNonstandard: null
   },
+  seedflare: {
+    inherit: true,
+    isNonstandard: "Past"
+  },
   shadowbone: {
     inherit: true,
     isNonstandard: null
@@ -636,11 +624,11 @@ const Moves = {
     inherit: true,
     isNonstandard: null
   },
-  stormthrow: {
+  spiderweb: {
     inherit: true,
-    isNonstandard: null
+    isNonstandard: "Past"
   },
-  strangesteam: {
+  stormthrow: {
     inherit: true,
     isNonstandard: null
   },
@@ -651,6 +639,10 @@ const Moves = {
   sunsteelstrike: {
     inherit: true,
     isNonstandard: null
+  },
+  tailglow: {
+    inherit: true,
+    isNonstandard: "Past"
   },
   technoblast: {
     inherit: true,
@@ -667,6 +659,10 @@ const Moves = {
   topsyturvy: {
     inherit: true,
     isNonstandard: null
+  },
+  toxicthread: {
+    inherit: true,
+    isNonstandard: "Past"
   },
   trickortreat: {
     inherit: true,

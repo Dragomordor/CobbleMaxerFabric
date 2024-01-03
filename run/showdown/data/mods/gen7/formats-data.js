@@ -2767,7 +2767,12 @@ const FormatsData = {
     tier: "OU",
     doublesTier: "DUU"
   },
+  greninjabond: {
+    tier: "OU",
+    doublesTier: "DUU"
+  },
   greninjaash: {
+    isNonstandard: null,
     tier: "OU",
     doublesTier: "DUU"
   },

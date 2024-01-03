@@ -272,6 +272,11 @@ class RoomGame {
    */
   onLogMessage(message, user) {
   }
+  /**
+   * Called when a game's timer needs to be started. Used mainly for tours.
+   */
+  startTimer() {
+  }
 }
 class SimpleRoomGame extends RoomGame {
   makePlayer(user, ...rest) {

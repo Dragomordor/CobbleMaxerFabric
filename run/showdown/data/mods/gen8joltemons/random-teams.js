@@ -28,7 +28,7 @@ class RandomJoltemonsTeams extends import_random_teams.RandomGen8Teams {
     super(...arguments);
     this.randomData = require("./random-data.json");
   }
-  shouldCullAbility(ability, types, moves, abilities, counter, movePool, teamDetails, species, isDoubles, isNoDynamax) {
+  shouldCullAbility(ability, types, moves, abilities, counter, movePool, teamDetails, species, isDoubles, preferredType, role, isNoDynamax) {
     if ([
       "Immunity",
       "Innards Out",
@@ -187,8 +187,7 @@ class RandomJoltemonsTeams extends import_random_teams.RandomGen8Teams {
       case "Tinted Lens":
         return (
           // For Sigilyph
-          moves.has("defog") || // For Butterfree
-          moves.has("hurricane") && abilities.has("Compound Eyes") || counter.get("Status") > 2 && !counter.setupType
+          moves.has("defog") || moves.has("hurricane") && abilities.has("Compound Eyes") || counter.get("Status") > 2 && !counter.setupType
         );
       case "Torrent":
         return moves.has("focusenergy") || moves.has("hypervoice");

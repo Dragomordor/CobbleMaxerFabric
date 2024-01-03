@@ -1581,7 +1581,7 @@ const Moves = {
   },
   spikes: {
     inherit: true,
-    flags: {}
+    flags: { mustpressure: 1 }
   },
   spite: {
     inherit: true,
@@ -1589,7 +1589,7 @@ const Moves = {
   },
   stealthrock: {
     inherit: true,
-    flags: {}
+    flags: { mustpressure: 1 }
   },
   struggle: {
     inherit: true,
@@ -1646,7 +1646,7 @@ const Moves = {
           this.add("-activate", target, "Substitute", "[damage]");
         }
         if (move.recoil && damage) {
-          this.damage(this.actions.calcRecoilDamage(damage, move), source, target, "recoil");
+          this.damage(this.actions.calcRecoilDamage(damage, move, source), source, target, "recoil");
         }
         if (move.drain) {
           this.heal(Math.ceil(damage * move.drain[0] / move.drain[1]), source, target, "drain");
@@ -1774,7 +1774,7 @@ const Moves = {
   },
   toxicspikes: {
     inherit: true,
-    flags: {},
+    flags: { mustpressure: 1 },
     condition: {
       // this is a side condition
       onSideStart(side) {

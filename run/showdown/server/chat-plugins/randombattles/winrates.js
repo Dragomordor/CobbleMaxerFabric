@@ -27,15 +27,19 @@ __export(winrates_exports, {
 module.exports = __toCommonJS(winrates_exports);
 var import_lib = require("../../../lib");
 const STATS_PATH = "logs/randbats/{{MONTH}}-winrates.json";
-let stats;
+const stats = getDefaultStats();
 try {
   const path = STATS_PATH.replace("{{MONTH}}", getMonth());
   if (!(0, import_lib.FS)("logs/randbats/").existsSync()) {
     (0, import_lib.FS)("logs/randbats/").mkdirSync();
   }
-  stats = JSON.parse((0, import_lib.FS)(path).readSync());
+  const savedStats = JSON.parse((0, import_lib.FS)(path).readSync());
+  stats.elo = savedStats.elo;
+  stats.month = savedStats.month;
+  for (const k in stats.formats) {
+    stats.formats[k] = savedStats.formats[k] || stats.formats[k];
+  }
 } catch {
-  stats = getDefaultStats();
 }
 function getDefaultStats() {
   return {
@@ -45,12 +49,15 @@ function getDefaultStats() {
       // all of these requested by rands staff. they don't anticipate it being changed much
       // so i'm not spending the time to add commands to toggle this
       gen9randombattle: { mons: {} },
+      gen9randomdoublesbattle: { mons: {} },
+      gen8randombattle: { mons: {} },
       gen7randombattle: { mons: {} },
       gen6randombattle: { mons: {} },
       gen5randombattle: { mons: {} },
       gen4randombattle: { mons: {} },
       gen3randombattle: { mons: {} },
-      gen2randombattle: { mons: {} }
+      gen2randombattle: { mons: {} },
+      gen1randombattle: { mons: {} }
     }
   };
 }
@@ -80,6 +87,12 @@ function getSpeciesName(set, format) {
     return "Dudunsparce";
   } else if (species === "Maushold-Four") {
     return "Maushold";
+  } else if (species === "Greninja-Bond") {
+    return "Greninja";
+  } else if (species === "Keldeo-Resolute") {
+    return "Keldeo";
+  } else if (species === "Zarude-Dada") {
+    return "Zarude";
   } else if (species === "Squawkabilly-Blue") {
     return "Squawkabilly";
   } else if (species === "Squawkabilly-White") {
@@ -110,7 +123,7 @@ function getSpeciesName(set, format) {
     return "Groudon-Primal";
   } else if (item.megaStone) {
     return item.megaStone;
-  } else if (species === "Rayquaza" && moves.includes("Dragon Ascent") && megaRayquazaPossible) {
+  } else if (species === "Rayquaza" && moves.includes("Dragon Ascent") && !item.zMove && megaRayquazaPossible) {
     return "Rayquaza-Mega";
   } else {
     return species;
@@ -133,7 +146,11 @@ async function collectStats(battle, winner, players) {
   const formatData = stats.formats[battle.format];
   let eloFloor = stats.elo;
   const format = Dex.formats.get(battle.format);
-  if (format.mod !== `gen${Dex.gen}`) {
+  if (format.mod === "gen2") {
+    eloFloor = 1150;
+  } else if (format.mod !== `gen${Dex.gen}`) {
+    eloFloor = 1300;
+  } else if (format.gameType === "doubles") {
     eloFloor = 1300;
   }
   if (!formatData || battle.rated < eloFloor)
@@ -158,7 +175,13 @@ async function collectStats(battle, winner, players) {
 const commands = {
   rwr: "randswinrates",
   randswinrates(target, room, user) {
-    return this.parse(`/j view-winrates-${toID(target) || `gen${Dex.gen}randombattle`}`);
+    target = toID(target);
+    if (/^(gen|)[0-9]+$/.test(target)) {
+      if (target.startsWith("gen"))
+        target = target.slice(3);
+      target = `gen${target}randombattle`;
+    }
+    return this.parse(`/j view-winrates-${target ? Dex.formats.get(target).id : `gen${Dex.gen}randombattle`}`);
   },
   randswinrateshelp: [
     "/randswinrates OR /rwr [format] - Get a list of the win rates for all Pokemon in the given Random Battles format."

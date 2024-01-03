@@ -86,7 +86,8 @@ const DATA_TYPES = [
   "Pokedex",
   "Scripts",
   "Conditions",
-  "TypeChart"
+  "TypeChart",
+  "PokemonGoData"
 ];
 const DATA_FILES = {
   Abilities: "abilities",
@@ -98,6 +99,7 @@ const DATA_FILES = {
   Moves: "moves",
   Natures: "natures",
   Pokedex: "pokedex",
+  PokemonGoData: "pokemongo",
   Scripts: "scripts",
   Conditions: "conditions",
   TypeChart: "typechart"
@@ -436,6 +438,7 @@ class ModdedDex {
       "gen2",
       "gen2stadium2",
       "gen3",
+      "gen3hoenngaiden",
       "gen4",
       "gen4pt",
       "gen5",
@@ -444,18 +447,22 @@ class ModdedDex {
       "gen6xy",
       "gen7",
       "gen7letsgo",
+      "gen7pokebilities",
       "gen7sm",
       "gen8",
       "gen8bdsp",
       "gen8dlc1",
       "gen8joltemons",
       "gen8linked",
+      "gen9predlc",
       "gennext",
       "mixandmega",
       "partnersincrime",
       "pokebilities",
       "potd",
+      "randomroulette",
       "sharedpower",
+      "sharingiscaring",
       "ssb",
       "thecardgame",
       "trademarked",

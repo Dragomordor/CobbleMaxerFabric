@@ -313,7 +313,7 @@ const FormatsData = {
     doublesTier: "DOU"
   },
   alakazammega: {
-    tier: "OU",
+    tier: "Uber",
     doublesTier: "DOU"
   },
   machop: {

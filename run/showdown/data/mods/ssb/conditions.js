@@ -156,18 +156,6 @@ const Conditions = {
       this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Alpha")}|caio`);
     }
   },
-  andrew: {
-    noCopy: true,
-    onStart() {
-      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Andrew")}|/me vents in`);
-    },
-    onSwitchOut() {
-      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Andrew")}|purple sus`);
-    },
-    onFaint() {
-      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Andrew")}|tidal otter is impostor! He vented in front of me in admin! Vote him out next!`);
-    }
-  },
   annika: {
     noCopy: true,
     onStart() {
@@ -1197,16 +1185,16 @@ const Conditions = {
       this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Naziel")}|Toy xikito no puedo ;-;`);
     }
   },
-  nol: {
+  theia: {
     noCopy: true,
     onStart() {
-      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Nol")}|What's up nerds`);
+      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Theia")}|What's up nerds`);
     },
     onSwitchOut() {
-      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Nol")}|cya nerds later`);
+      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Theia")}|cya nerds later`);
     },
     onFaint() {
-      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Nol")}|nerd`);
+      this.add(`c:|${Math.floor(Date.now() / 1e3)}|${getName("Theia")}|nerd`);
     },
     innateName: "RSUA",
     shortDesc: "+1 priority to status moves. 1.5x Defense and Special Defense.",
@@ -2041,7 +2029,7 @@ const Conditions = {
       return this.chainModify(0.75);
     }
   },
-  // Kipkluif, needs to end in mod to not trigger aelita/andrew's effect
+  // Kipkluif, needs to end in mod to not trigger aelita's effect
   degeneratormod: {
     onBeforeSwitchOut(pokemon) {
       let alreadyAdded = false;

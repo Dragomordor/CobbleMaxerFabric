@@ -246,6 +246,9 @@ class BattleActions {
       pokemon.moveThisTurnResult = willTryMove;
       return;
     }
+    if (move.flags["cantusetwice"] && pokemon.lastMove?.id === move.id) {
+      pokemon.addVolatile(move.id);
+    }
     if (move.beforeMoveCallback) {
       if (move.beforeMoveCallback.call(this.battle, pokemon, target, move)) {
         this.battle.clearActiveMove(true);
@@ -286,6 +289,9 @@ class BattleActions {
       move = this.battle.activeMove;
     this.battle.singleEvent("AfterMove", move, null, pokemon, target, move);
     this.battle.runEvent("AfterMove", pokemon, target, move);
+    if (move.flags["cantusetwice"] && pokemon.removeVolatile(move.id)) {
+      this.battle.add("-hint", `Some effects can force a Pokemon to use ${move.name} again in a row.`);
+    }
     if (move.flags["dance"] && moveDidSomething && !move.isExternal) {
       const dancers = [];
       for (const currentPoke of this.battle.getAllActive()) {
@@ -868,9 +874,9 @@ class BattleActions {
     if (move.multihit && typeof move.smartTarget !== "boolean") {
       this.battle.add("-hitcount", targets[0], hit - 1);
     }
-    if (move.recoil && move.totalDamage) {
+    if ((move.recoil || move.id === "chloroblast") && move.totalDamage) {
       const hpBeforeRecoil = pokemon.hp;
-      this.battle.damage(this.calcRecoilDamage(move.totalDamage, move), pokemon, pokemon, "recoil");
+      this.battle.damage(this.calcRecoilDamage(move.totalDamage, move, pokemon), pokemon, pokemon, "recoil");
       if (pokemon.hp <= pokemon.maxhp / 2 && hpBeforeRecoil > pokemon.maxhp / 2) {
         this.battle.runEvent("EmergencyExit", pokemon, pokemon);
       }
@@ -1140,7 +1146,7 @@ class BattleActions {
         this.battle.faint(source, source, move);
       }
       if (moveData.selfSwitch) {
-        if (this.battle.canSwitch(source.side)) {
+        if (this.battle.canSwitch(source.side) && !source.volatiles["commanded"]) {
           didSomething = true;
         } else {
           didSomething = this.combineResults(didSomething, false);
@@ -1159,7 +1165,7 @@ class BattleActions {
         }
       }
       this.battle.debug("move failed because it did nothing");
-    } else if (move.selfSwitch && source.hp) {
+    } else if (move.selfSwitch && source.hp && !source.volatiles["commanded"]) {
       source.switchFlag = move.id;
     }
     return damage;
@@ -1219,7 +1225,9 @@ class BattleActions {
     const retVal = this.spreadMoveHit(targets, pokemon, moveOrMoveName, moveData, isSecondary, isSelf)[0][0];
     return retVal === true ? void 0 : retVal;
   }
-  calcRecoilDamage(damageDealt, move) {
+  calcRecoilDamage(damageDealt, move, pokemon) {
+    if (move.id === "chloroblast")
+      return Math.round(pokemon.maxhp / 2);
     return this.battle.clampIntRange(Math.round(damageDealt * move.recoil[0] / move.recoil[1]), 1);
   }
   getZMove(move, pokemon, skipChecks) {
@@ -1632,12 +1640,15 @@ class BattleActions {
     return true;
   }
   canTerastallize(pokemon) {
-    if (pokemon.species.isMega || pokemon.species.isPrimal || pokemon.species.forme === "Ultra" || pokemon.getItem().zMove || pokemon.canMegaEvo || pokemon.side.canDynamaxNow() || this.dex.gen !== 9) {
+    if (pokemon.getItem().zMove || pokemon.canMegaEvo || this.dex.gen !== 9) {
       return null;
     }
     return pokemon.teraType;
   }
   terastallize(pokemon) {
+    if (pokemon.illusion?.species.baseSpecies === "Ogerpon") {
+      this.battle.singleEvent("End", this.dex.abilities.get("Illusion"), pokemon.abilityState, pokemon);
+    }
     const type = pokemon.teraType;
     this.battle.add("-terastallize", pokemon, type);
     pokemon.terastallized = type;
@@ -1647,6 +1658,10 @@ class BattleActions {
     pokemon.addedType = "";
     pokemon.knownType = true;
     pokemon.apparentType = type;
+    if (pokemon.species.baseSpecies === "Ogerpon") {
+      const tera = pokemon.species.id === "ogerpon" ? "tealtera" : "tera";
+      pokemon.formeChange(pokemon.species.id + tera, pokemon.getItem(), true);
+    }
     this.battle.runEvent("AfterTerastallization", pokemon);
   }
   // #endregion
