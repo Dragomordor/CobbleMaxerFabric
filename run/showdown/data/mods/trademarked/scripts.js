@@ -86,7 +86,11 @@ const Scripts = {
         }
         this.runEvent("DisableMove", pokemon);
         for (const moveSlot of pokemon.moveSlots) {
-          this.singleEvent("DisableMove", this.dex.getActiveMove(moveSlot.id), null, pokemon);
+          const activeMove = this.dex.getActiveMove(moveSlot.id);
+          this.singleEvent("DisableMove", activeMove, null, pokemon);
+          if (activeMove.flags["cantusetwice"] && pokemon.lastMove?.id === moveSlot.id) {
+            pokemon.disableMove(pokemon.lastMove.id);
+          }
         }
         if (pokemon.getLastAttackedBy() && this.gen >= 7)
           pokemon.knownType = true;

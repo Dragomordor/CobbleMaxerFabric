@@ -381,6 +381,8 @@ class DexFormats {
         format.searchShow = true;
       if (format.tournamentShow === void 0)
         format.tournamentShow = true;
+      if (format.bestOfDefault === void 0)
+        format.bestOfDefault = false;
       if (format.mod === void 0)
         format.mod = "gen9";
       if (!this.dex.dexes[format.mod])

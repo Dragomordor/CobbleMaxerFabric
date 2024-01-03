@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "cobblemaxer",
-  "version": "1.0.0",
-  "name": "Cobblemon Maxer for Fabric",
-  "description": "Adds items that maximize (or randomize) the IV's, EV's and Level of Pokémon",
-  "logoFile": "icon.png",
+  "id": "cobblemizer",
+  "version": "2.0.0",
+  "name": "Cobblemon Customizer for Fabric",
+  "description": "Adds items that allow players to manipulate various stats and aesthetic characteristics of Pokémon within the game.",
+  "icon": "assets/cobblemizer/icon.png",
   "authors": [
     "Dragomordor"
   ],
@@ -12,7 +12,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "git.dragomordor.cobblemaxer.fabric.CobblemaxerMod"
+      "git.dragomordor.cobblemizer.fabric.CobblemizerMod"
     ]
   },
   "depends": {
@@ -20,6 +20,6 @@
     "minecraft": ">=1.20.1",
     "fabricloader": ">=0.14.21",
     "fabric-api": "*",
-    "cobblemon": ">=1.4.0"
+    "cobblemon": ">=1.4.1"
   }
 }

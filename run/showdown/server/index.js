@@ -80,8 +80,8 @@ var TeamValidatorAsync = __toESM(require("./team-validator-async"));
  * @license MIT
  */
 const nodeVersion = parseInt(process.versions.node);
-if (isNaN(nodeVersion) || nodeVersion < 14) {
-  throw new Error("We require Node.js version 14 or later; you're using " + process.version);
+if (isNaN(nodeVersion) || nodeVersion < 16) {
+  throw new Error("We require Node.js version 16 or later; you're using " + process.version);
 }
 function setupGlobals() {
   const ConfigLoader = require("./config-loader");

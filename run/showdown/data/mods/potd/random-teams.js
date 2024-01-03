@@ -71,7 +71,8 @@ class RandomPOTDTeams extends import_random_teams.RandomTeams {
     const typeComboCount = {};
     const typeWeaknesses = {};
     const teamDetails = {};
-    const [pokemonPool, baseSpeciesPool] = this.getPokemonPool(type, pokemon, isMonotype, isDoubles);
+    const pokemonList = isDoubles ? Object.keys(this.randomDoublesSets) : Object.keys(this.randomSets);
+    const [pokemonPool, baseSpeciesPool] = this.getPokemonPool(type, pokemon, isMonotype, pokemonList);
     if (baseSpeciesPool.includes(potd.baseSpecies)) {
       this.fastPop(baseSpeciesPool, baseSpeciesPool.indexOf(potd.baseSpecies));
     }
@@ -94,6 +95,8 @@ class RandomPOTDTeams extends import_random_teams.RandomTeams {
       }
       let species = this.sample(currentSpeciesPool);
       if (!species.exists)
+        continue;
+      if (baseFormes[species.baseSpecies])
         continue;
       if (species.baseSpecies === "Zoroark" && pokemon.length >= this.maxTeamSize - 1)
         continue;

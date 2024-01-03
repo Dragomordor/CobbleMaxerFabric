@@ -163,7 +163,7 @@ const Abilities = {
       }
     },
     name: "Anger Shell",
-    rating: 4,
+    rating: 3,
     num: 271
   },
   anticipation: {
@@ -345,13 +345,12 @@ const Abilities = {
         return;
       if (source.abilityState.battleBondTriggered)
         return;
-      if (source.species.id === "greninja" && source.hp && !source.transformed && source.side.foePokemonLeft()) {
-        this.add("-activate", source, "ability: Battle Bond");
+      if (source.species.id === "greninjabond" && source.hp && !source.transformed && source.side.foePokemonLeft()) {
         this.boost({ atk: 1, spa: 1, spe: 1 }, source, source, this.effect);
+        this.add("-activate", source, "ability: Battle Bond");
         source.abilityState.battleBondTriggered = true;
       }
     },
-    isNonstandard: "Unobtainable",
     isPermanent: true,
     name: "Battle Bond",
     rating: 3.5,
@@ -584,8 +583,10 @@ const Abilities = {
   },
   commander: {
     onUpdate(pokemon) {
+      if (this.gameType !== "doubles")
+        return;
       const ally = pokemon.allies()[0];
-      if (!ally || pokemon.baseSpecies.baseSpecies !== "Tatsugiri" || ally.baseSpecies.baseSpecies !== "Dondozo") {
+      if (!ally || pokemon.transformed || pokemon.baseSpecies.baseSpecies !== "Tatsugiri" || ally.baseSpecies.baseSpecies !== "Dondozo") {
         if (pokemon.getVolatile("commanding"))
           pokemon.removeVolatile("commanding");
         return;
@@ -603,7 +604,6 @@ const Abilities = {
         pokemon.removeVolatile("commanding");
       }
     },
-    isPermanent: true,
     name: "Commander",
     rating: 0,
     num: 279
@@ -822,11 +822,10 @@ const Abilities = {
   },
   dauntlessshield: {
     onStart(pokemon) {
-      if (this.effectState.shieldBoost)
+      if (pokemon.shieldBoost)
         return;
-      if (this.boost({ def: 1 }, pokemon)) {
-        this.effectState.shieldBoost = true;
-      }
+      pokemon.shieldBoost = true;
+      this.boost({ def: 1 }, pokemon);
     },
     name: "Dauntless Shield",
     rating: 3.5,
@@ -1135,8 +1134,48 @@ const Abilities = {
       target.addVolatile("charge");
     },
     name: "Electromorphosis",
-    rating: 2.5,
+    rating: 3,
     num: 280
+  },
+  embodyaspectcornerstone: {
+    onStart(pokemon) {
+      if (pokemon.baseSpecies.name === "Ogerpon-Cornerstone-Tera" && !pokemon.transformed) {
+        this.boost({ def: 1 }, pokemon);
+      }
+    },
+    name: "Embody Aspect (Cornerstone)",
+    rating: 3.5,
+    num: 304
+  },
+  embodyaspecthearthflame: {
+    onStart(pokemon) {
+      if (pokemon.baseSpecies.name === "Ogerpon-Hearthflame-Tera" && !pokemon.transformed) {
+        this.boost({ atk: 1 }, pokemon);
+      }
+    },
+    name: "Embody Aspect (Hearthflame)",
+    rating: 3.5,
+    num: 303
+  },
+  embodyaspectteal: {
+    onStart(pokemon) {
+      if (pokemon.baseSpecies.name === "Ogerpon-Teal-Tera" && !pokemon.transformed) {
+        this.boost({ spe: 1 }, pokemon);
+      }
+    },
+    name: "Embody Aspect (Teal)",
+    rating: 3.5,
+    num: 301
+  },
+  embodyaspectwellspring: {
+    onStart(pokemon) {
+      if (pokemon.baseSpecies.name === "Ogerpon-Wellspring-Tera" && !pokemon.transformed) {
+        this.boost({ spd: 1 }, pokemon);
+      }
+    },
+    name: "Embody Aspect (Wellspring)",
+    rating: 3.5,
+    num: 302
   },
   emergencyexit: {
     onEmergencyExit(target) {
@@ -1475,7 +1514,7 @@ const Abilities = {
         return priority + 1;
     },
     name: "Gale Wings",
-    rating: 2.5,
+    rating: 1.5,
     num: 177
   },
   galvanize: {
@@ -1624,6 +1663,7 @@ const Abilities = {
         this.boost({ atk: 1 }, target, target, null, false, true);
       }
     },
+    isBreakable: true,
     name: "Guard Dog",
     rating: 2,
     num: 275
@@ -1714,9 +1754,17 @@ const Abilities = {
     num: 131
   },
   heatproof: {
-    onSourceBasePowerPriority: 18,
-    onSourceBasePower(basePower, attacker, defender, move) {
+    onSourceModifyAtkPriority: 6,
+    onSourceModifyAtk(atk, attacker, defender, move) {
       if (move.type === "Fire") {
+        this.debug("Heatproof Atk weaken");
+        return this.chainModify(0.5);
+      }
+    },
+    onSourceModifySpAPriority: 5,
+    onSourceModifySpA(atk, attacker, defender, move) {
+      if (move.type === "Fire") {
+        this.debug("Heatproof SpA weaken");
         return this.chainModify(0.5);
       }
     },
@@ -1745,6 +1793,16 @@ const Abilities = {
     rating: 0,
     num: 118
   },
+  hospitality: {
+    onStart(pokemon) {
+      for (const ally of pokemon.adjacentAllies()) {
+        this.heal(ally.baseMaxhp / 4, ally, pokemon);
+      }
+    },
+    name: "Hospitality",
+    rating: 0,
+    num: 299
+  },
   hugepower: {
     onModifyAtkPriority: 5,
     onModifyAtk(atk) {
@@ -1757,7 +1815,7 @@ const Abilities = {
   hungerswitch: {
     onResidualOrder: 29,
     onResidual(pokemon) {
-      if (pokemon.species.baseSpecies !== "Morpeko" || pokemon.transformed)
+      if (pokemon.species.baseSpecies !== "Morpeko" || pokemon.transformed || pokemon.terastallized)
         return;
       const targetForme = pokemon.species.name === "Morpeko" ? "Morpeko-Hangry" : "Morpeko";
       pokemon.formeChange(targetForme);
@@ -1899,8 +1957,22 @@ const Abilities = {
     num: 246
   },
   illuminate: {
+    onTryBoost(boost, target, source, effect) {
+      if (source && target === source)
+        return;
+      if (boost.accuracy && boost.accuracy < 0) {
+        delete boost.accuracy;
+        if (!effect.secondaries) {
+          this.add("-fail", target, "unboost", "accuracy", "[from] ability: Illuminate", "[of] " + target);
+        }
+      }
+    },
+    onModifyMove(move) {
+      move.ignoreEvasion = true;
+    },
+    isBreakable: true,
     name: "Illuminate",
-    rating: 0,
+    rating: 0.5,
     num: 35
   },
   illusion: {
@@ -1909,7 +1981,9 @@ const Abilities = {
       for (let i = pokemon.side.pokemon.length - 1; i > pokemon.position; i--) {
         const possibleTarget = pokemon.side.pokemon[i];
         if (!possibleTarget.fainted) {
-          pokemon.illusion = possibleTarget;
+          if (!pokemon.terastallized || possibleTarget.species.baseSpecies !== "Ogerpon") {
+            pokemon.illusion = possibleTarget;
+          }
           break;
         }
       }
@@ -1926,6 +2000,9 @@ const Abilities = {
         const details = pokemon.species.name + (pokemon.level === 100 ? "" : ", L" + pokemon.level) + (pokemon.gender === "" ? "" : ", " + pokemon.gender) + (pokemon.set.shiny ? ", shiny" : "");
         this.add("replace", pokemon, details);
         this.add("-end", pokemon, "Illusion");
+        if (this.ruleTable.has("illusionlevelmod")) {
+          this.hint("Illusion Level Mod is active, so this Pok\xE9mon's true level was hidden.", true);
+        }
       }
     },
     onFaint(pokemon) {
@@ -2022,6 +2099,12 @@ const Abilities = {
       }
       return false;
     },
+    onTryAddVolatile(status, target) {
+      if (status.id === "yawn") {
+        this.add("-immune", target, "[from] ability: Insomnia");
+        return null;
+      }
+    },
     isBreakable: true,
     name: "Insomnia",
     rating: 1.5,
@@ -2048,11 +2131,10 @@ const Abilities = {
   },
   intrepidsword: {
     onStart(pokemon) {
-      if (this.effectState.swordBoost)
+      if (pokemon.swordBoost)
         return;
-      if (this.boost({ atk: 1 }, pokemon)) {
-        this.effectState.swordBoost = true;
-      }
+      pokemon.swordBoost = true;
+      this.boost({ atk: 1 }, pokemon);
     },
     name: "Intrepid Sword",
     rating: 4,
@@ -2316,7 +2398,7 @@ const Abilities = {
   },
   magician: {
     onAfterMoveSecondarySelf(source, target, move) {
-      if (!move || !target)
+      if (!move || !target || source.switchFlag === true)
         return;
       if (target !== source && move.category !== "Status") {
         if (source.item || source.volatiles["gem"] || move.id === "fling")
@@ -2439,6 +2521,31 @@ const Abilities = {
     name: "Mimicry",
     rating: 0,
     num: 250
+  },
+  mindseye: {
+    onTryBoost(boost, target, source, effect) {
+      if (source && target === source)
+        return;
+      if (boost.accuracy && boost.accuracy < 0) {
+        delete boost.accuracy;
+        if (!effect.secondaries) {
+          this.add("-fail", target, "unboost", "accuracy", "[from] ability: Mind's Eye", "[of] " + target);
+        }
+      }
+    },
+    onModifyMovePriority: -5,
+    onModifyMove(move) {
+      move.ignoreEvasion = true;
+      if (!move.ignoreImmunity)
+        move.ignoreImmunity = {};
+      if (move.ignoreImmunity !== true) {
+        move.ignoreImmunity["Fighting"] = true;
+        move.ignoreImmunity["Normal"] = true;
+      }
+    },
+    name: "Mind's Eye",
+    rating: 0,
+    num: 300
   },
   minus: {
     onModifySpAPriority: 5,
@@ -2687,6 +2794,9 @@ const Abilities = {
           this.add("-block", target, "item: Ability Shield");
           continue;
         }
+        if (target.volatiles["commanding"]) {
+          continue;
+        }
         if (target.illusion) {
           this.singleEvent("End", this.dex.abilities.get("Illusion"), target.abilityState, target, pokemon, "neutralizinggas");
         }
@@ -2717,6 +2827,8 @@ const Abilities = {
         if (pokemon !== source) {
           if (pokemon.getAbility().isPermanent)
             continue;
+          if (pokemon.hasItem("abilityshield"))
+            continue;
           this.singleEvent("Start", pokemon.getAbility(), pokemon.abilityState, pokemon);
           if (pokemon.ability === "gluttony") {
             pokemon.abilityState.gluttony = false;
@@ -2725,7 +2837,7 @@ const Abilities = {
       }
     },
     name: "Neutralizing Gas",
-    rating: 4,
+    rating: 3.5,
     num: 256
   },
   noguard: {
@@ -3092,18 +3204,14 @@ const Abilities = {
     num: 38
   },
   poisontouch: {
-    // upokecenter says this is implemented as an added secondary effect
-    onModifyMove(move) {
-      if (!move?.flags["contact"] || move.target === "self")
+    onSourceDamagingHit(damage, target, source, move) {
+      if (target.hasAbility("shielddust") || target.hasItem("covertcloak"))
         return;
-      if (!move.secondaries) {
-        move.secondaries = [];
+      if (this.checkMoveMakesContact(move, target, source)) {
+        if (this.randomChance(3, 10)) {
+          target.trySetStatus("psn", source);
+        }
       }
-      move.secondaries.push({
-        chance: 30,
-        status: "psn",
-        ability: this.dex.abilities.get("poisontouch")
-      });
     },
     name: "Poison Touch",
     rating: 2,
@@ -3138,6 +3246,7 @@ const Abilities = {
       const ability = target.getAbility();
       const additionalBannedAbilities = [
         "noability",
+        "commander",
         "flowergift",
         "forecast",
         "hungerswitch",
@@ -3548,6 +3657,7 @@ const Abilities = {
       const ability = target.getAbility();
       const additionalBannedAbilities = [
         "noability",
+        "commander",
         "flowergift",
         "forecast",
         "hungerswitch",
@@ -4475,6 +4585,29 @@ const Abilities = {
     rating: 1.5,
     num: 105
   },
+  supersweetsyrup: {
+    onStart(pokemon) {
+      if (pokemon.syrupTriggered)
+        return;
+      pokemon.syrupTriggered = true;
+      this.add("-ability", pokemon, "Supersweet Syrup");
+      let activated = false;
+      for (const target of pokemon.adjacentFoes()) {
+        if (!activated) {
+          this.add("-ability", pokemon, "Supersweet Syrup", "boost");
+          activated = true;
+        }
+        if (target.volatiles["substitute"]) {
+          this.add("-immune", target);
+        } else {
+          this.boost({ evasion: -1 }, target, pokemon, null, true);
+        }
+      }
+    },
+    name: "Supersweet Syrup",
+    rating: 1.5,
+    num: 306
+  },
   supremeoverlord: {
     onStart(pokemon) {
       if (pokemon.side.totalFainted) {
@@ -4794,6 +4927,18 @@ const Abilities = {
     rating: 3,
     num: 137
   },
+  toxicchain: {
+    onSourceDamagingHit(damage, target, source, move) {
+      if (target.hasAbility("shielddust") || target.hasItem("covertcloak"))
+        return;
+      if (this.randomChance(3, 10)) {
+        target.trySetStatus("tox", source);
+      }
+    },
+    name: "Toxic Chain",
+    rating: 4.5,
+    num: 305
+  },
   toxicdebris: {
     onDamagingHit(damage, target, source, move) {
       const side = source.isAlly(target) ? source.side.foe : source.side;
@@ -4823,6 +4968,7 @@ const Abilities = {
       const additionalBannedAbilities = [
         // Zen Mode included here for compatability with Gen 5-6
         "noability",
+        "commander",
         "flowergift",
         "forecast",
         "hungerswitch",
@@ -4852,14 +4998,14 @@ const Abilities = {
     onModifyAtk(atk, attacker, defender, move) {
       if (move.type === "Electric") {
         this.debug("Transistor boost");
-        return this.chainModify(1.5);
+        return this.chainModify([5325, 4096]);
       }
     },
     onModifySpAPriority: 5,
     onModifySpA(atk, attacker, defender, move) {
       if (move.type === "Electric") {
         this.debug("Transistor boost");
-        return this.chainModify(1.5);
+        return this.chainModify([5325, 4096]);
       }
     },
     name: "Transistor",
@@ -5028,6 +5174,12 @@ const Abilities = {
       }
       return false;
     },
+    onTryAddVolatile(status, target) {
+      if (status.id === "yawn") {
+        this.add("-immune", target, "[from] ability: Vital Spirit");
+        return null;
+      }
+    },
     isBreakable: true,
     name: "Vital Spirit",
     rating: 1.5,
@@ -5049,7 +5201,7 @@ const Abilities = {
   },
   wanderingspirit: {
     onDamagingHit(damage, target, source, move) {
-      const additionalBannedAbilities = ["hungerswitch", "illusion", "neutralizinggas", "wonderguard"];
+      const additionalBannedAbilities = ["commander", "hungerswitch", "illusion", "neutralizinggas", "wonderguard"];
       if (source.getAbility().isPermanent || additionalBannedAbilities.includes(source.ability) || target.volatiles["dynamax"]) {
         return;
       }
@@ -5256,6 +5408,7 @@ const Abilities = {
         this.boost({ atk: 1 }, pokemon, pokemon);
       }
     },
+    isBreakable: true,
     name: "Wind Rider",
     rating: 3.5,
     // We do not want Brambleghast to get Infiltrator in Randbats

@@ -82,6 +82,7 @@ class Species extends import_dex_data.BasicEffect {
     this.cannotDynamax = !!data.cannotDynamax;
     this.battleOnly = data.battleOnly || (this.isMega ? this.baseSpecies : void 0);
     this.changesFrom = data.changesFrom || (this.battleOnly !== this.baseSpecies ? this.battleOnly : this.baseSpecies);
+    this.pokemonGoData = data.pokemonGoData || void 0;
     if (Array.isArray(data.changesFrom))
       this.changesFrom = data.changesFrom[0];
     if (!this.gen && this.num >= 1) {
@@ -311,6 +312,9 @@ class DexSpecies {
     learnsetData = new Learnset(this.dex.data.Learnsets[id]);
     this.learnsetCache.set(id, learnsetData);
     return learnsetData;
+  }
+  getPokemonGoData(id) {
+    return this.dex.data.PokemonGoData[id];
   }
   all() {
     if (this.allCache)

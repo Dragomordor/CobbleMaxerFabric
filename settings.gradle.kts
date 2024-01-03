@@ -1,4 +1,4 @@
-rootProject.name = "CobblemaxerFabric"
+rootProject.name = "CobblemizerFabric"
 
 pluginManagement {
     repositories {

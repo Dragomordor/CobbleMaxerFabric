@@ -373,8 +373,8 @@ ${data}`;
     const status = statusMessage + (this.userMessage || "");
     return status;
   }
-  can(permission, target = null, room = null, cmd) {
-    return import_user_groups.Auth.hasPermission(this, permission, target, room, cmd);
+  can(permission, target = null, room = null, cmd, cmdToken) {
+    return import_user_groups.Auth.hasPermission(this, permission, target, room, cmd, cmdToken);
   }
   /**
    * Special permission check for system operators

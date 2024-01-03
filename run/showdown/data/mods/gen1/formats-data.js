@@ -209,7 +209,7 @@ const FormatsData = {
     tier: "NUBL"
   },
   abra: {
-    tier: "LC"
+    tier: "PU"
   },
   kadabra: {
     tier: "UU"
@@ -245,7 +245,7 @@ const FormatsData = {
     tier: "LC"
   },
   graveler: {
-    tier: "NFE"
+    tier: "PU"
   },
   golem: {
     tier: "NU"
@@ -296,7 +296,7 @@ const FormatsData = {
     tier: "OU"
   },
   gastly: {
-    tier: "LC"
+    tier: "PU"
   },
   haunter: {
     tier: "UU"
@@ -308,10 +308,10 @@ const FormatsData = {
     tier: "PU"
   },
   drowzee: {
-    tier: "LC"
+    tier: "PU"
   },
   hypno: {
-    tier: "UU"
+    tier: "UUBL"
   },
   krabby: {
     tier: "LC"
@@ -323,7 +323,7 @@ const FormatsData = {
     tier: "LC"
   },
   electrode: {
-    tier: "PU"
+    tier: "NU"
   },
   exeggcute: {
     tier: "NU"
@@ -380,7 +380,7 @@ const FormatsData = {
     tier: "PU"
   },
   staryu: {
-    tier: "LC"
+    tier: "PU"
   },
   starmie: {
     tier: "OU"
@@ -413,7 +413,7 @@ const FormatsData = {
     tier: "UU"
   },
   lapras: {
-    tier: "UU"
+    tier: "UUBL"
   },
   ditto: {
     tier: "PU"
@@ -431,10 +431,10 @@ const FormatsData = {
     tier: "PU"
   },
   porygon: {
-    tier: "NU"
+    tier: "PU"
   },
   omanyte: {
-    tier: "LC"
+    tier: "PU"
   },
   omastar: {
     tier: "UU"
@@ -464,7 +464,7 @@ const FormatsData = {
     tier: "LC"
   },
   dragonair: {
-    tier: "NFE"
+    tier: "PU"
   },
   dragonite: {
     tier: "UU"

@@ -510,7 +510,7 @@ ${buf}`);
     message = this.checkChat(message);
     if (!message)
       return;
-    Chat.sendPM(`/botmsg ${message}`, user2, targetUser, targetUser);
+    Chat.PrivateMessages.send(`/botmsg ${message}`, user2, targetUser, targetUser);
   },
   botmsghelp: [`/botmsg [username], [message] - Send a private message to a bot without feedback. For room bots, must use in the room the bot is auth in.`],
   nick() {
@@ -666,10 +666,8 @@ ${buf}`);
         for (const key of newKeys) {
           if (!oldProto[key]) {
             counts.added++;
-          } else if (
-            // compare source code
-            typeof oldProto[key] !== "function" || oldProto[key].toString() !== newProto[key].toString()
-          ) {
+          } else if (// compare source code
+          typeof oldProto[key] !== "function" || oldProto[key].toString() !== newProto[key].toString()) {
             counts.updated++;
           }
           oldProto[key] = newProto[key];
@@ -702,6 +700,7 @@ ${buf}`);
         void TeamValidatorAsync.PM.respawn();
         void Rooms.PM.respawn();
         void Chat.plugins.datasearch?.PM?.respawn();
+        global.Teams = require("../../sim/teams").Teams;
         Rooms.global.sendAll(Rooms.global.formatListText);
         this.sendReply("DONE");
       } else if (target2 === "loginserver") {
@@ -718,6 +717,7 @@ ${buf}`);
         }
         this.sendReply("Hotpatching validator...");
         void TeamValidatorAsync.PM.respawn();
+        global.Teams = require("../../sim/teams").Teams;
         this.sendReply("DONE. Any battles started after now will have teams be validated according to the new code.");
       } else if (target2 === "punishments") {
         if (lock["punishments"]) {
@@ -1269,6 +1269,41 @@ exports.Learnsets = {
   },
   updateloginserverhelp: [
     `/updateloginserver - Updates and restarts the loginserver. Requires: console access`
+  ],
+  async updateclient(target2, room2, user2) {
+    this.canUseConsole();
+    this.sendReply("Restarting...");
+    const [result2, err] = await LoginServer.request("rebuildclient", {
+      full: toID(target2) === "full"
+    });
+    if (err) {
+      Rooms.global.notifyRooms(
+        ["staff", "development"],
+        `|c|&|/log ${user2.name} used /updateclient - but something failed while updating.`
+      );
+      return this.errorReply(err.message + "\n" + err.stack);
+    }
+    if (!result2)
+      return this.errorReply("No result received.");
+    this.stafflog(`[o] ${result2.success || ""} [e] ${result2.actionerror || ""}`);
+    if (result2.actionerror) {
+      return this.errorReply(result2.actionerror);
+    }
+    let message = `${user2.name} used /updateclient`;
+    if (result2.updated) {
+      this.sendReply(`DONE. Client updated.`);
+    } else {
+      message += ` - but something failed while updating.`;
+      this.errorReply(`FAILED. Conflicts were found while updating.`);
+    }
+    Rooms.global.notifyRooms(
+      ["staff", "development"],
+      `|c|&|/log ${message}`
+    );
+  },
+  updateclienthelp: [
+    `/updateclient [full] - Update the client source code. Provide the argument 'full' to make it a full rebuild.`,
+    `Requires: & console access`
   ],
   async rebuild() {
     this.canUseConsole();

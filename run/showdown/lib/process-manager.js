@@ -507,8 +507,9 @@ class QueryProcessManager extends ProcessManager {
     const timeout = setTimeout(() => {
       const debugInfo = process2.debug || "No debug information found.";
       process2.destroy();
+      this.spawnOne();
       throw new Error(
-        `A query originating in ${this.basename} took too long to complete; the process has been killed.
+        `A query originating in ${this.basename} took too long to complete; the process has been respawned.
 ${debugInfo}`
       );
     }, this.timeout);

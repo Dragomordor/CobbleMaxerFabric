@@ -414,7 +414,7 @@ const FormatsData = {
     tier: "UU",
     doublesTier: "DOU"
   },
-  greninjaash: {
+  greninjabond: {
     tier: "OU",
     doublesTier: "DOU"
   },
